@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plan Index Calculator – เทียบ 2 แพลน</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Playfair+Display:wght@800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#9CB8B7;--surface:#EAE0C7;--ink:#2E211C;--berry:#984619;--mid:#2E211C;--milk:#EAE0C7;--sorb:#9CB8B7;--line:rgba(46,33,28,.25)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans Thai",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 12px 40px}
+.top{background:var(--ink);color:#F5D470;border:0;border-radius:12px;padding:18px 16px 12px;margin-bottom:16px}
+h1{font:800 1.9rem/1.1 "Playfair Display",Georgia,serif;margin:0 0 8px}h2{font-size:1rem;margin:22px 0 8px}
+.sub,.note{font-size:.85rem;margin:0 0 14px}
+.top .sub{margin:0 0 6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:6px 4px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font-weight:600;font-size:.9rem}
+th#oA,th#oB{color:var(--berry);text-align:center}
+td.l{font-size:.85rem;width:34%}
+#out td:not(.l){text-align:center}
+input{width:100%;min-width:0;padding:8px;border:1px solid var(--mid);border-radius:6px;background:var(--sorb);color:var(--ink);font:500 .95rem "IBM Plex Mono",ui-monospace,monospace}
+input.nm{text-align:center;font-family:inherit;font-weight:600;background:#C06226;color:var(--milk);border:1px solid #C06226}
+input:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.v{display:inline-block;background:var(--mid);color:var(--milk);padding:1px 10px;border-radius:6px;font:500 1.1rem "IBM Plex Mono",ui-monospace,monospace}
+.v.na{background:transparent;color:var(--ink);padding:1px 0}
+small{display:block;font-size:.74rem}
+small.ok::before{content:"\2713  ";color:#C06226;font-weight:700;font-size:1.15em}
+small.out{font-weight:600}small.out::before{content:"\2717  "}
+td.l small{font-size:.72rem}
+.warn{background:var(--milk);border-left:4px solid var(--mid);border-radius:8px;padding:6px 10px;font-size:.82rem;margin-top:8px}
+.warn:empty{display:none}
+.btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+button{font:600 .85rem "IBM Plex Sans Thai",system-ui,sans-serif;padding:8px 12px;border-radius:6px;border:1px solid var(--mid);background:var(--milk);color:var(--ink);cursor:pointer}
+button.ghost{background:transparent}
+button.del{background:transparent;border-style:dashed}
+.h{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.h:last-child{border-bottom:0}
+.h b{font-weight:600;color:var(--berry)}.h .a{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.h button{padding:5px 9px;font-size:.78rem}
+.empty{font-size:.85rem;padding:8px 0}
+.note.nh{margin:10px 0 2px;font-size:.95rem}
+.abbr{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0 0 14px;font-size:.82rem}
+.abbr dt{font-weight:600}.abbr dd{margin:0}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><h1>Plan Index Calculator</h1>
+<p class="sub">เทียบ CI, GI, HI ของ 2 แพลนข้างกัน และบันทึกไว้ดูย้อนหลังได้</p></header>
+
+<div class="card"><table id="inp"></table></div>
+<div class="btns">
+<button id="sa">บันทึก A</button><button id="sb">บันทึก B</button><button id="sw" class="ghost">สลับ A↔B</button><button id="cl" class="ghost">ล้างทั้งหมด</button>
+</div>
+
+<h2>Result</h2>
+<div class="card"><table id="out"></table></div>
+<div class="warn" id="wA"></div><div class="warn" id="wB"></div>
+<p class="note nh"><b>Note</b></p><p class="note">CI (Paddick) = (TV × PIV) / (TV∩PIV)² ช่วงที่ยอมรับ 1.0–1.2 · GI ต่ำกว่า 3.5 ดี, 3.5–5.0 ยอมรับได้ · เกณฑ์อื่นขึ้นกับโปรโตคอลของสถาบัน</p><dl class="abbr"><dt>Rx</dt><dd>Prescription dose</dd><dt>Dmax</dt><dd>Maximum dose</dd><dt>TV</dt><dd>Target volume</dd><dt>PIV</dt><dd>Prescription isodose volume</dd><dt>TV∩PIV</dt><dd>Target volume covered by the prescription isodose</dd><dt>V100%</dt><dd>Volume receiving at least 100% of Rx (= PIV)</dd><dt>V50%</dt><dd>Volume receiving at least 50% of Rx</dd><dt>D2%, D98%, D50%</dt><dd>Dose covering 2%, 98%, 50% of the target volume</dd><dt>CI</dt><dd>Conformity index</dd><dt>GI</dt><dd>Gradient index</dd><dt>HI</dt><dd>Homogeneity index</dd></dl>
+
+<h2>ประวัติที่บันทึก</h2>
+<div class="card" id="hist"></div>
+<p class="note" id="hnote">ประวัติเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ถูกส่งไปที่อื่น และไม่ควรใส่ชื่อหรือเลขประจำตัวผู้ป่วยในชื่อแพลน</p>
+</main>
+<script>
+var F=[["rx","Rx dose (Gy)"],["dmax","Dmax (Gy)"],["tv","TV (cc)"],["piv","PIV = V100% (cc)"],["tvpiv","TV∩PIV (cc)"],["v50","V50% Rx (cc)"],["d2","D2% (Gy)"],["d98","D98% (Gy)"],["d50","D50% (Gy)"]];
+var R=[["ci1","CI (RTOG)","PIV / TV"],["cip","CI (Paddick)","(TV×PIV)/(TV∩PIV)²"],["gi","GI","V50% / V100%"],["hi1","HI (RTOG)","Dmax / Rx"],["hi2","HI (ICRU 83)","(D2−D98)/D50"]];
+var P=["A","B"],KEY="pi_hist_v1";
+function $(i){return document.getElementById(i)}
+var t='<tr><th>Parameters</th>';P.forEach(function(p){t+='<th><input class="nm" id="'+p+'_name" value="Plan '+p+'" aria-label="ชื่อ Plan '+p+'"></th>'});t+='</tr>';
+F.forEach(function(f){t+='<tr><td class="l">'+f[1]+'</td>';P.forEach(function(p){t+='<td><input type="number" inputmode="decimal" step="any" id="'+p+'_'+f[0]+'" aria-label="'+f[1]+' Plan '+p+'"></td>'});t+='</tr>'});
+$("inp").innerHTML=t;
+var o='<tr><th></th><th id="oA">Plan A</th><th id="oB">Plan B</th></tr>';
+R.forEach(function(r){o+='<tr><td class="l">'+r[1]+'<small>'+r[2]+'</small></td><td id="A_'+r[0]+'"></td><td id="B_'+r[0]+'"></td></tr>'});
+$("out").innerHTML=o;
+function val(p,k){var s=$(p+"_"+k).value;return s===""?NaN:parseFloat(s)}
+function vals(p){var d={};F.forEach(function(f){d[f[0]]=val(p,f[0])});return d}
+function idx(d){var x=d.tvpiv;return{ci1:d.tv>0?d.piv/d.tv:NaN,cip:d.tv>0&&d.piv>0&&x>0?d.tv*d.piv/(x*x):NaN,gi:d.piv>0?d.v50/d.piv:NaN,hi1:d.rx>0?d.dmax/d.rx:NaN,hi2:d.d50>0?(d.d2-d.d98)/d.d50:NaN}}
+function st(k,v){if(!isFinite(v))return null;
+if(k=="cip")return v>=1&&v<=1.2?["อยู่ในช่วง 1.0–1.2","ok"]:["นอกช่วง 1.0–1.2","out"];
+if(k=="gi")return v<3.5?["ดี (ต่ำกว่า 3.5)","ok"]:v<=5?["ยอมรับได้ (3.5–5.0)","ok"]:["เกิน 5.0","out"];return null}
+function warns(d){var w=[];if(d.tvpiv>d.tv||d.tvpiv>d.piv)w.push("TV∩PIV มากกว่า TV หรือ PIV");if(d.v50<d.piv)w.push("V50% น้อยกว่า V100%");if(d.d2<d.d98)w.push("D2% น้อยกว่า D98%");if(d.dmax<d.rx)w.push("Dmax ต่ำกว่า Rx");return w}
+function calc(){P.forEach(function(p){var d=vals(p),r=idx(d);$("o"+p).textContent=$(p+"_name").value||("Plan "+p);
+R.forEach(function(x){var v=r[x[0]],e=$(p+"_"+x[0]),s=st(x[0],v);
+e.innerHTML='<span class="v'+(isFinite(v)?'':' na')+'">'+(isFinite(v)?v.toFixed(2):'–')+'</span>'+(s?'<small class="'+s[1]+'">'+s[0]+'</small>':'')});
+var w=warns(d);$("w"+p).textContent=w.length?($(p+"_name").value||p)+": "+w.join(" · "):""})}
+document.querySelectorAll("#inp input").forEach(function(e){e.addEventListener("input",calc)});
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function store(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catch(e){return false}}
+function fmt(x){return isFinite(x)?x.toFixed(2):"–"}
+function renderHist(){var h=load(),c=$("hist");c.textContent="";
+if(!h.length){var e=document.createElement("div");e.className="empty";e.textContent="ยังไม่มีแพลนที่บันทึกไว้";c.appendChild(e);return}
+h.forEach(function(it,i){var r=idx(it.v),row=document.createElement("div");row.className="h";
+var l=document.createElement("div"),b=document.createElement("b");b.textContent=it.name;l.appendChild(b);
+var s=document.createElement("small");s.textContent=it.date+" · CI "+fmt(r.cip)+" · GI "+fmt(r.gi)+" · HI "+fmt(r.hi1);l.appendChild(s);
+var a=document.createElement("div");a.className="a";
+[["→A","A"],["→B","B"]].forEach(function(z){var bt=document.createElement("button");bt.className="ghost";bt.textContent=z[0];bt.onclick=function(){fill(z[1],it)};a.appendChild(bt)});
+var d=document.createElement("button");d.className="del";d.textContent="ลบ";d.onclick=function(){var x=load();x.splice(i,1);store(x);renderHist()};a.appendChild(d);
+row.appendChild(l);row.appendChild(a);c.appendChild(row)})}
+function fill(p,it){$(p+"_name").value=it.name;F.forEach(function(f){var x=it.v[f[0]];$(p+"_"+f[0]).value=isFinite(x)&&x!==null?x:""});calc()}
+function save(p){var d=vals(p),any=F.some(function(f){return isFinite(d[f[0]])});if(!any)return;
+var v={};F.forEach(function(f){v[f[0]]=isFinite(d[f[0]])?d[f[0]]:null});
+var n=new Date(),ds=n.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})+" "+n.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+var h=load();h.unshift({name:$(p+"_name").value||("Plan "+p),date:ds,v:v});h=h.slice(0,30);
+if(!store(h))$("hnote").textContent="บันทึกไม่ได้ เบราว์เซอร์นี้ไม่อนุญาตให้เก็บข้อมูล";renderHist()}
+$("sa").onclick=function(){save("A")};$("sb").onclick=function(){save("B")};
+$("sw").onclick=function(){["name"].concat(F.map(function(f){return f[0]})).forEach(function(k){var a=$("A_"+k),b=$("B_"+k),t=a.value;a.value=b.value;b.value=t});calc()};
+$("cl").onclick=function(){P.forEach(function(p){F.forEach(function(f){$(p+"_"+f[0]).value=""});$(p+"_name").value="Plan "+p});calc()};
+calc();renderHist();
+</script>
+</body>
+</html>
